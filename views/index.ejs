@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Wowsers</title>
+	<link rel="icon" href="favicon.png">
+	<style>
+		div {
+			font-family: Calibri;
+		}
+
+		input {
+			font-family: Calibri;
+		}
+
+		.fields {
+			padding: 10px;
+		}
+
+		.btn {
+			margin-left: 50px;
+		}
+
+		.forms {
+			width: fit-content;
+		}
+
+	</style>
+</head>
+<body>
+	<form action="/selectCourse" method="post">
+		<div class="forms">
+			<div class="fields">
+				<label for="courseDepartment">Course Department (ABCD): </label>
+				<input type="text" name="courseDepartment" value="SYSC">
+			</div>
+
+			<div class="fields">
+				<label for="courseNumber">Course Number (####): </label>
+				<input type="number" name="courseNumber" value="3600" min="1000" max="9999">
+			</div>
+
+			<div class="fields">
+				<label for="semester">Select Semester: </label>
+				<select name="semester" id="semester">
+					<option value="WINTER">WINTER</option>
+					<option value="SUMMER">SUMMER</option>
+					<option value="FALL" selected="selected">FALL</option>
+				</select>
+				<input type="submit" value="Submit">
+			</div>
+		</div>
+    </form>
+	 <audio autoplay id="portal" preload="auto" loop="true">
+		<source src="/portal.mp3" type="audio/mp3">
+		lardd
+	 </audio>
+
+	 <script>
+		let interacted = false;
+		document.body.addEventListener("click", () => {
+			interacted = true;
+		}, { once: true })
+
+		document.body.addEventListener("mousemove", () => {
+			if (!interacted) 
+				return;
+			const audio = document.getElementById("portal")
+			if (audio.paused)
+				audio.play();
+		})
+	 </script>
+</body>
+
+</html>
