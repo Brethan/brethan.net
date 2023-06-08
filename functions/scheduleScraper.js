@@ -45,7 +45,7 @@ async function getCourseInfo(dept, code, semester = 30, year = 2023) {
 		if (slice.length) courses.push(slice)
 	}
 
-	const lastIndex = mapped.findIndex(str => str.toLowerCase().startsWith("section information"));
+	const lastIndex = mapped.findIndex(str => str.toLowerCase().includes("classes begin on"));
 	courses.push(mapped.splice(0, lastIndex + 1))
 	
 	const courseObjs = [];
@@ -158,7 +158,8 @@ async function getCourseInfo(dept, code, semester = 30, year = 2023) {
 
 	});
 
-	return courseObjs;
+	const dummyObj = { "meetingInfo": null, "alsoRegister": null, "sectionInfo": null }
+	return courseObjs || [dummyObj];
 }
 
 /**
