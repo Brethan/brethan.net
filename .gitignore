@@ -1,5 +1,7 @@
 node_modules
+nodemon.json
 .vscode
 functions/scripts
 functions/test
+metrics
 .env
