@@ -1,10 +1,25 @@
 const fetch = require("node-fetch");
+require("dotenv").config()
+const { initializeApp } = require("firebase/app")
+const { getFirestore, setDoc, doc, getDoc } = require("firebase/firestore");
+
+const firebaseConfig = {
+	apiKey: process.env.API_KEY,
+	authDomain: `${process.env.FIREBASE_PROJECT_NAME}.firebaseapp.com`,
+	databaseURL: `https://${process.env.FIREBASE_PROJECT_NAME}.firebaseio.com`,
+	projectId: `${process.env.FIREBASE_PROJECT_NAME}`,
+	storageBucket: `${process.env.FIREBASE_PROJECT_NAME}.appspot.com`,
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getFirestore(firebaseApp)
+
 
 /**
  * 
  * @param {string} dept 
  * @param {number} code 
- * @param {2023 | 2024} year
+ * @param {number} year
  * @param {10 | 20 | 30} semester
  * @returns {Promise<CourseScheduleInformation[]>}
  */
@@ -203,6 +218,45 @@ module.exports.ScrapeOutput = this.ScrapeOutput
 module.exports.MeetingTimeInformation = this.MeetingTimeInformation
 module.exports.AlsoRegisterInformation = this.AlsoRegisterInformation
 
+/**
+ * 
+ * @param {string} dbCourseRoute 
+ * @param {string} department 
+ * @param {number} number 
+ * @param {10|20|30} semester 
+ * @param {number} year 
+ * @returns 
+ */
+async function getCourseScheduleData(dbCourseRoute, department, number, semester, year) {
+	try { // TODO: Extract this functionality into a module
+		const cache = await getDoc(doc(db, dbCourseRoute));
+		//
+		let data;
+		if (cache.exists()) {
+			console.log("cache hit", dbCourseRoute);
+			data = cache.data();
+		} else {
+			// fetch from carleton website
+			data = await getCourseInfo(department, number, semester, year);
+			if (data[0]?.crn) { // cache the results in the DB
+				console.log("cache miss", dbCourseRoute);
+				setDoc(doc(db, dbCourseRoute), { data: data })
+				.then(() => console.log(`done caching ${dbCourseRoute}\n`))
+				.catch(() => console.log(`could not cache ${dbCourseRoute}`));
+			} else {
+				console.log("fetch miss", dbCourseRoute);
+			}
+			
+			data = { data: data };
+		}
+		
+		const status = data.data[0]?.crn ? 200 : 404;
+	
+		return { data, status: status };
+	} catch (error) {
+		return { data: { data: "<h1>Server Error 500</h1>" }, status: 500 }
+	}
+}
 
 /**
  * 
@@ -216,4 +270,4 @@ function timeToInt(hh, mm) {
 	return {minutes: minute, hours: hour}
 }
 
-module.exports = getCourseInfo;
+module.exports.getCourseScheduleData = getCourseScheduleData;

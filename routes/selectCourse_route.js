@@ -1,21 +1,13 @@
 const express = require("express");
+const { getCourseScheduleData } = require("../functions/scheduleScraper");
 const fetch = require("node-fetch").default
 const router = express.Router()
 
 router.post("/", async (req, res) => {
 	const { courseDepartment, courseNumber, semester } = req.body;
-	let year;
-	switch (semester) {
-		case "WINTER":
-			year =  2024;
-			break;
-		case "SUMMER":
-		case "FALL":
-		default:
-			year = 2023;
-			break;
-	}
+	const year = (semester && semester.toLowerCase().includes("winter")) ? 2024 : 2023;
 	
+	// TODO: change to fetch from Firestore or Carleton API
 	const response = await fetch(`https://api.brethan.net/term/${semester}/${year}/courseCode/${courseDepartment}-${courseNumber}`)
 	const json = await response.json()
 	if (!json.data || !(json.data instanceof Array))
@@ -38,7 +30,7 @@ router.post("/", async (req, res) => {
 		html += "</div></div>"
 	}
 
-	res.render("schedule", {schedules: html})
+	res.render("humanread_json", {schedules: html})
 })
 
 function jsonToHtml(obj) {
