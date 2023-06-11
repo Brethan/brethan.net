@@ -18,4 +18,8 @@ router.get("/portal.mp3", (req, res) => {
 	res.sendFile(resolve("./public/sound/portal.mp3"))
 })
 
+router.get("/schedule_request.js", (req, res) => {
+	res.sendFile(resolve("./src/schedule_request.js"))
+})
+
 module.exports = router
