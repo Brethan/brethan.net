@@ -173,7 +173,19 @@ async function getCourseInfo(dept, code, semester = 30, year = 2023) {
 
 	});
 
-	const dummyObj = { "meetingInfo": null, "alsoRegister": null, "sectionInfo": null }
+	/** @type {CourseScheduleInformation} */
+	const dummyObj = {
+		crn: null,
+		courseCode: null,
+		courseName: null,
+		courseType: null,
+		instructor: null,
+		section: null,
+		"meetingInfo": null,
+		"alsoRegister": null, 
+		"sectionInfo": null
+	}
+
 	return courseObjs || [dummyObj];
 }
 
@@ -204,7 +216,7 @@ async function getCourseInfo(dept, code, semester = 30, year = 2023) {
  * @property {?string} instructor
  * @property {string} section
  * @property {?string} sectionInfo
- * @property {?MeetingTimeInformation} meetingTime
+ * @property {?MeetingTimeInformation} meetingInfo
  * @property {?AlsoRegisterInformation} alsoRegister
  */
 
@@ -225,16 +237,16 @@ module.exports.AlsoRegisterInformation = this.AlsoRegisterInformation
  * @param {number} number 
  * @param {10|20|30} semester 
  * @param {number} year 
- * @returns 
+ * @returns {Promise<{status: number, data: CourseScheduleInformation[]}>}
  */
 async function getCourseScheduleData(dbCourseRoute, department, number, semester, year) {
-	try { // TODO: Extract this functionality into a module
+	try {
 		const cache = await getDoc(doc(db, dbCourseRoute));
 		//
 		let data;
 		if (cache.exists()) {
 			console.log("cache hit", dbCourseRoute);
-			data = cache.data();
+			data = cache.data().data;
 		} else {
 			// fetch from carleton website
 			data = await getCourseInfo(department, number, semester, year);
@@ -247,14 +259,13 @@ async function getCourseScheduleData(dbCourseRoute, department, number, semester
 				console.log("fetch miss", dbCourseRoute);
 			}
 			
-			data = { data: data };
 		}
 		
-		const status = data.data[0]?.crn ? 200 : 404;
+		const status = data[0]?.crn ? 200 : 404;
 	
-		return { data, status: status };
+		return { data, status };
 	} catch (error) {
-		return { data: { data: "<h1>Server Error 500</h1>" }, status: 500 }
+		return { data: "<h1>Server Error 500</h1>", status: 500 }
 	}
 }
 

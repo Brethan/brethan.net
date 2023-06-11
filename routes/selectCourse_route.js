@@ -1,23 +1,25 @@
+// @ts-check
 const express = require("express");
 const { getCourseScheduleData } = require("../functions/scheduleScraper");
-const fetch = require("node-fetch").default
 const router = express.Router()
 
 router.post("/", async (req, res) => {
-	const { courseDepartment, courseNumber, semester } = req.body;
-	const year = (semester && semester.toLowerCase().includes("winter")) ? 2024 : 2023;
+	const { department, number, semester } = req.body;	
+	const year = (semester > 10) ? 2023 : 2024;
+	const mappedSem = {"10": "WINTER", "20": "SUMMER"}[semester] || "FALL";
+	const dbCourseRoute = `${mappedSem}${year}/${department}-${number}`;
+	console.log(dbCourseRoute);
 	
-	// TODO: change to fetch from Firestore or Carleton API
-	const response = await fetch(`https://api.brethan.net/term/${semester}/${year}/courseCode/${courseDepartment}-${courseNumber}`)
-	const json = await response.json()
-	if (!json.data || !(json.data instanceof Array))
-		return res.status(418).send("Y'dun goofed")
-	//
-	if (json.data.length == 1 && !json.data[0].crn)
-		return res.status(418).send("Y'dun goofered")
+	const { data, status } = await getCourseScheduleData(dbCourseRoute, department, number, semester, year);
+	if (status == 500) {
+		return res.status(status).send(data);
+		
+	} else if (status == 404) {
+		return res.status(status).render("redirect")
+	}
 
 	let html = "";
-	for (const obj of json.data) {
+	for (const obj of data) {
 		html += "<div class=\"outer\"><div class=\"test\">"
 		for (const key in obj) {
 			if (obj[key] instanceof Object) {

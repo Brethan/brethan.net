@@ -25,9 +25,10 @@ router.get("/:semester/:year/courseCode/:department-:number", async (req, res) =
 	const mappedSem = TERM_NUMBER_MAP.get(semester) || 30;
 	const dbCourseRoute = `${semester}${year}/${department}-${number}`;
 
-	const data = await getCourseScheduleData(dbCourseRoute, department, number, mappedSem, year);
-	res.status(data.status).send(data.data);
+	const { data, status } = await getCourseScheduleData(dbCourseRoute, department, number, mappedSem, year);
+	res.status(status).send({ data });
 	
 })
 
+module.exports.TERM_NUMBER_MAP = TERM_NUMBER_MAP;
 module.exports = router
