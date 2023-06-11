@@ -3,10 +3,6 @@ const express = require("express");
 const { getCourseScheduleData } = require("../functions/scheduleScraper");
 const router = express.Router()
 
-/** @type {Map<string, 10|20|30|undefined>} */
-const TERM_NUMBER_MAP = new Map(Object.entries({ "WINTER": 10, "SUMMER": 20, "FALL": 30 }))
-
-
 router.get("/", (req, res) => {
 	res.send("tf you doing here bruv")
 })
@@ -21,14 +17,11 @@ router.get("/:semester/:year/courseCode/:department-:number", async (req, res) =
 	const number = parseInt(req.params.number);
 	const semester = req.params.semester.toUpperCase();
 	const department = req.params.department.toUpperCase();
+	const mappedSem = { "WINTER": 10, "SUMMER": 20, "FALL": 30 }[semester] || 30;
 
-	const mappedSem = TERM_NUMBER_MAP.get(semester) || 30;
-	const dbCourseRoute = `${semester}${year}/${department}-${number}`;
-
-	const { data, status } = await getCourseScheduleData(dbCourseRoute, department, number, mappedSem, year);
+	const { data, status } = await getCourseScheduleData(department, number, mappedSem, year);
 	res.status(status).send({ data });
 	
 })
 
-module.exports.TERM_NUMBER_MAP = TERM_NUMBER_MAP;
 module.exports = router

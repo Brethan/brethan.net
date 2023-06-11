@@ -6,11 +6,8 @@ const router = express.Router()
 router.post("/", async (req, res) => {
 	const { department, number, semester } = req.body;	
 	const year = (semester > 10) ? 2023 : 2024;
-	const mappedSem = {"10": "WINTER", "20": "SUMMER"}[semester] || "FALL";
-	const dbCourseRoute = `${mappedSem}${year}/${department}-${number}`;
-	console.log(dbCourseRoute);
 	
-	const { data, status } = await getCourseScheduleData(dbCourseRoute, department, number, semester, year);
+	const { data, status } = await getCourseScheduleData(department, number, semester, year);
 	if (status == 500) {
 		return res.status(status).send(data);
 		

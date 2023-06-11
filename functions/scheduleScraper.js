@@ -205,6 +205,7 @@ async function getCourseInfo(dept, code, semester = 30, year = 2023) {
  * @property {string[]} sections
  * @property {string[]} andSections
  * @property {string} courseCode
+ * @property {string} andCourseCode
  */
 
 /**
@@ -239,10 +240,11 @@ module.exports.AlsoRegisterInformation = this.AlsoRegisterInformation
  * @param {number} year 
  * @returns {Promise<{status: number, data: CourseScheduleInformation[]}>}
  */
-async function getCourseScheduleData(dbCourseRoute, department, number, semester, year) {
+async function getCourseScheduleData(department, number, semester, year) {
+	const mappedSem = {"10": "WINTER", "20": "SUMMER", "30": "FALL"}[semester] || "FALL";
+	const dbCourseRoute = `${mappedSem}${year}/${department.toUpperCase()}-${number}`;
 	try {
 		const cache = await getDoc(doc(db, dbCourseRoute));
-		//
 		let data;
 		if (cache.exists()) {
 			console.log("cache hit", dbCourseRoute);

@@ -23,7 +23,7 @@ document.getElementsByName("departmentField").forEach(input => input.addEventLis
 	const val = input.value.toUpperCase();
 	const potentials = Object.keys(faJson).filter(key => key.startsWith(val));
 	/** @type {string}*/
-	const srcId = ev.srcElement?.id || "uh oh";
+	const srcId = ev.target.id || "uh oh";
 	const selId = "number" + srcId.charAt(srcId.length - 1);
 
 	const select = document.getElementById(selId);
