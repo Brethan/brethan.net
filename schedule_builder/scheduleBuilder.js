@@ -8,7 +8,7 @@ const CourseGroup = require("./structures/CourseGroup");
  * @param {Collection<string, Collection<string, CourseInfo>>} courses 
  * @param {number} n
  */
-module.exports = function builder(courses, n) {
+module.exports = async function builder(courses, n) {
 	/** @type {CourseGroup[]} */
 	const courseGroups = [];
 	courses.forEach(course => {
@@ -20,7 +20,16 @@ module.exports = function builder(courses, n) {
 				const linked = course.find((_, section) => section === l);
 				if (!linked) continue;
 
-				if (!linked.conflictsWith(primary)) {
+				if (primary.addSection && primary.addCourse) {
+					for (const a of primary.addSection) {
+						const added = course.find((_, section) => section = a);
+						if (!added) continue;
+						if (!linked.conflictsWithAny(primary, added))
+							courseGroups.push(new CourseGroup(primary, linked, added));
+					}
+				}
+
+				if (!linked.conflictsWith(primary) && !primary.addCourse) {
 					courseGroups.push(new CourseGroup(primary, linked));
 				}
 			}
@@ -28,6 +37,7 @@ module.exports = function builder(courses, n) {
 		
 	})
 
+	console.log("are you ready?");
 	/**
  	 * @param {CourseGroup[]} arr 
  	 */
@@ -36,27 +46,54 @@ module.exports = function builder(courses, n) {
 			return schedules.push(arr);
 	}
 
+	const copy = [...courseGroups];
+	/** @type {CourseGroup[][]} */
+	const sectionGroups = []
+	while (copy.length) {
+		const first = copy[0];
+		const index = copy.findIndex(c => c.primary.courseCode !== first.primary.courseCode)
+		const a = copy.splice(0, (index > 0) ? index : copy.length);
+		sectionGroups.push(a);
+	}
+
+	/** @type {CourseGroup[]} */
+	const reducedGroups = [];
+	for (const cgArr of sectionGroups) {
+		if (cgArr.length < 3) {
+			reducedGroups.push(...cgArr)
+		} else if (cgArr.length >= 3) {
+			const ints = getNRandomInts(Math.min(4, cgArr.length), cgArr.length);
+			for (const i of ints) reducedGroups.push(cgArr[i]);
+		}
+		
+	}
+
+	console.log(courseGroups.map(cg => cg.toString()).length);
+	console.log(reducedGroups.map(cg => cg.toString()).length)
+	
 	/**
 	 * @type {CourseGroup[][]}
 	 */
 	const schedules = [];
 	// forgive me
-	courseGroups.forEach((cg0, _, col0) => {
+	let counter = 0;
+	reducedGroups.forEach((cg0, _0, col0) => {
 		if (n == 1) return pushSchedule([cg0]);
 
-		col0.filter(g => !g.conflictsWith(cg0)).forEach((cg1, _, col1) => {
-			if (n == 2) return pushSchedule([cg0, cg1]);
+		col0.filter(g => !g.conflictsWith(cg0)).forEach((cg1, _1, col1) => {
+			if (n == 2) return schedules.push([cg0, cg1]);
 
-			col1.filter(g => !g.conflictsWith(cg1)).forEach((cg2, _, col2) => {
-				if (n == 4) return pushSchedule([cg0, cg1, cg2])
+			col1.filter(g => !g.conflictsWith(cg1)).forEach((cg2, _2, col2) => {
+				if (n == 3) return pushSchedule([cg0, cg1, cg2])
 
-				col2.filter(g => !g.conflictsWith(cg2)).forEach((cg3, _, col3) => {
+				col2.filter(g => !g.conflictsWith(cg2)).forEach((cg3, _3, col3) => {
 					if (n == 4) return pushSchedule([cg0, cg1, cg2, cg3])
-					
-					col3.filter(g => !g.conflictsWith(cg3)).forEach((cg4, _, col4) => {
-						if (n == 5) return pushSchedule([cg0, cg1, cg2, cg3, cg4]);
 
-						col4.filter(g => !g.conflictsWith(cg4)).forEach((cg5, _, _col5) => {
+					col3.filter(g => !g.conflictsWith(cg3)).slice(0, 5).forEach((cg4, _4, col4) => {
+						// console.log([cg0, cg1, cg2, cg3, cg4].map(c=> c.toString()));
+						if (n == 5) return schedules.push([cg0, cg1, cg2, cg3, cg4])
+
+						col4.filter(g => !g.conflictsWith(cg4)).forEach((cg5, _5, _col5) => {
 							pushSchedule([cg0, cg1, cg2, cg3, cg4, cg5]);
 						})
 					})
@@ -65,6 +102,7 @@ module.exports = function builder(courses, n) {
 		})
 	})
 
+	console.log("wtf hello?");
 	const numFreeDay = schedules.filter(a => {
 		const b = [];
 		for (const gc of a) {
@@ -76,31 +114,37 @@ module.exports = function builder(courses, n) {
 		return b.length < 5;
 	})
 	
-	/**
-	 * @type {CourseGroup[][]}
-	 */
-	const reduce = []
-	schedules.forEach(cg => {
-		if (!reduce.find(gc => CourseGroup.compareScheduleArrays(gc, cg)))
-			reduce.push(cg);
-	})
-
+	console.log("wtf hello? 2");
+	
+	console.log("wtf hello? 3");
 	console.log(numFreeDay[0]?.map(gc => gc.toString()));
-	console.log(reduce.length, schedules.length, numFreeDay.length);
+	console.log(schedules.length, numFreeDay.length);
+}
+
+
+
+/**
+ * @param {number} n
+ * @param {number} max
+ * @returns
+ */
+function getNRandomInts(n, max) {
+	const ints = [];
+	while (ints.length < n) {
+		const ran = getRandomInt(max);
+		if (!ints.includes(ran)) ints.push(ran);
+	}
+
+	return ints;
 }
 
 /**
  * 
- * @param {CourseGroup[]} stack 
- * @param {CourseGroup[]} select 
- * @param {CourseGroup[]} output 
+ * @param {number} max 
  */
-function buildSchedule(stack, select, output) {
-
+function getRandomInt(max) {
+	return Math.floor(Math.random() * max)
 }
-
-
-
 
 /**
  * 

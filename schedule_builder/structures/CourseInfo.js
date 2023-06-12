@@ -68,10 +68,19 @@ class CourseInfo {
 	 * @param {CourseInfo | null} other 
 	 */
 	conflictsWith(other) {
-		if (other == null)
-			return false;
-
+		if (!other) return false;
 		return (this.overlapsTimeslot(other) && this.sharesDay(other));
+	}
+
+	/**
+	 * 
+	 * @param  {CourseInfo | null} other1
+	 * @param  {CourseInfo | null} other2
+	 */
+	conflictsWithAny(other1, other2) {
+		const check1 = this.conflictsWith(other1) && this.conflictsWith(other2);
+		const check2 = (other1 && other2) ? other1.conflictsWith(other2) : false;
+		return check1 && check2;
 	}
 
 	/**

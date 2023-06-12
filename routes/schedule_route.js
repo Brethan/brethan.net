@@ -38,6 +38,7 @@ router.post("/", async (req, res) => {
 	}
 
 	scheduleBuilder(schedules, numbers.length);
+	console.log("balls");
 	res.render("schedule_request");
 
 })
