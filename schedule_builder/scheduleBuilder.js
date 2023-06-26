@@ -2,6 +2,7 @@
 const { Collection } = require("@discordjs/collection");
 const CourseInfo = require("./structures/CourseInfo");
 const CourseGroup = require("./structures/CourseGroup");
+const Schedule = require("./structures/Schedule");
 
 /**
  * 
@@ -42,7 +43,7 @@ module.exports = async function builder(courses, n) {
  	 * @param {CourseGroup[]} arr 
  	 */
 	const pushSchedule = (arr) => {
-		if (!schedules.find(cgg => CourseGroup.compareScheduleArrays(arr, cgg)))
+		if (!schedules.find(cgg => !CourseGroup.compareScheduleArrays(arr, cgg)))
 			return schedules.push(arr);
 	}
 
@@ -76,8 +77,9 @@ module.exports = async function builder(courses, n) {
 	 */
 	const schedules = [];
 	// forgive me
-	let counter = 0;
-	reducedGroups.forEach((cg0, _0, col0) => {
+	const groups = (courseGroups.length < 25) ? courseGroups : reducedGroups;
+
+	groups.forEach((cg0, _0, col0) => {
 		if (n == 1) return pushSchedule([cg0]);
 
 		col0.filter(g => !g.conflictsWith(cg0)).forEach((cg1, _1, col1) => {
@@ -90,8 +92,7 @@ module.exports = async function builder(courses, n) {
 					if (n == 4) return pushSchedule([cg0, cg1, cg2, cg3])
 
 					col3.filter(g => !g.conflictsWith(cg3)).slice(0, 5).forEach((cg4, _4, col4) => {
-						// console.log([cg0, cg1, cg2, cg3, cg4].map(c=> c.toString()));
-						if (n == 5) return schedules.push([cg0, cg1, cg2, cg3, cg4])
+						if (n == 5) return pushSchedule([cg0, cg1, cg2, cg3, cg4])
 
 						col4.filter(g => !g.conflictsWith(cg4)).forEach((cg5, _5, _col5) => {
 							pushSchedule([cg0, cg1, cg2, cg3, cg4, cg5]);
@@ -102,7 +103,6 @@ module.exports = async function builder(courses, n) {
 		})
 	})
 
-	console.log("wtf hello?");
 	const numFreeDay = schedules.filter(a => {
 		const b = [];
 		for (const gc of a) {
@@ -114,11 +114,18 @@ module.exports = async function builder(courses, n) {
 		return b.length < 5;
 	})
 	
-	console.log("wtf hello? 2");
-	
-	console.log("wtf hello? 3");
-	console.log(numFreeDay[0]?.map(gc => gc.toString()));
-	console.log(schedules.length, numFreeDay.length);
+	/** @type {CourseGroup[][]} */
+	const unique = []
+	for (const sched of schedules) {
+		if (!unique.find(cgg => !CourseGroup.compareScheduleArrays(sched, cgg)))
+			unique.push(sched);
+	}
+
+	console.log(schedules.map(cg => cg.map(c => c.courseSection).sort()))
+	console.log(unique.length);
+	const a = unique.map(cgArr => new Schedule(...cgArr));
+	const test = numFreeDay[0] || schedules[0]
+	// a.forEach(sc => console.log(sc.toString()))
 }
 
 
