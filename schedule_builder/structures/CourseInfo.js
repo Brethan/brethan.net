@@ -3,6 +3,8 @@ const { CourseScheduleInformation } = require("../../functions/scheduleScraper")
 const { min, max } = Math;
 
 class CourseInfo {
+
+	static nullBlock = {startBlock: -1, endBlock: -1};
 	_days
 	/**
 	 * 
@@ -31,6 +33,11 @@ class CourseInfo {
 	/** @readonly */
 	get endBlock() {
 		return (this.meetingInfo == null) ? -1 : this.meetingInfo.endBlock; 
+	}
+
+	/** @readonly */
+	get blocks() {
+		return { "startBlock": this.startBlock, "endBlock": this.endBlock, "meetingDays": this.meetingDays }
 	}
 
 	/** @readonly */

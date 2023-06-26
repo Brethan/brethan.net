@@ -14,20 +14,35 @@ module.exports = class CourseGroup {
 		this.tertiary = tertiary
 		this.startBlocks = [primary.startBlock];
 		this.endBlocks = [primary.endBlock];
+		/** @type {CourseInfo[]} */
+		this.courses = [primary];
 		/** @type {Set<number>} */
 		this.days = new Set(primary.meetingDays);
 		if (secondary) { 
+			this.courses.push(secondary)
 			this.startBlocks.push(secondary.startBlock);
 			this.endBlocks.push(secondary.endBlock);
 			secondary.meetingDays.forEach(day => this.days.add(day));
 		}
 		
 		if (tertiary) {
+			this.courses.push(tertiary);
 			this.startBlocks.push(tertiary.startBlock);
 			this.endBlocks.push(tertiary.endBlock);
 			tertiary.meetingDays.forEach(day => this.days.add(day));
 		}
 		
+	}
+
+	/** @readonly */
+	get blocks() {
+		const blockArr = { primary: this.primary.blocks };
+		if (this.secondary)
+			blockArr.secondary = this.secondary.blocks
+		if (this.tertiary)
+			blockArr.tertiary = this.tertiary.blocks
+
+		return blockArr;
 	}
 
 	/** @readonly */
@@ -75,11 +90,10 @@ module.exports = class CourseGroup {
 	 * @param {CourseGroup[]} s2 
 	 */
 	static compareScheduleArrays(s1, s2) {
+		
 		for (const course1 of s1) {
-			for (const course2 of s2) {
-				if (course1.equals(course2)) {
-					return false;
-				}
+			if (!s2.find(cg => course1.equals(cg))) {
+				return false;
 			}
 		}
 
