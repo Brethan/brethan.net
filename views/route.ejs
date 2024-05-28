@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="/css/flip.css">
+	<title>Document</title>
+</head>
+<body>
+	<form action="/route/directions" method="get">
+		<fieldset class="container">
+			<legend>Directions</legend>
+			<div class="input-location">
+				<label>Start location: </label>
+				<input type="text" name="origin" id="origin" <%-locals.originInvalid ||""%> required>
+				<input type="button" value="Use my location" id="get-my-location" required>
+			</div>
+			<div class="input-location" >
+				<label>Destination: </label>
+				<input type="text" name="destination" id="destination" <%-locals.destInvalid ||""%> required>
+				<br>
+				<label>Transport method: </label>
+				<select name="transportMethod" id="transportMethod">
+					<option value="driving">Driving</option>
+					<option value="transit">Public transit</option>
+				</select>
+			</div>
+			<h4>Enter time options</h4>
+			<div id="time-options">
+				<label>Time:</label>
+				<input type="time" name="transportTime" id="transportTime" value="00:00" required>
+				<select name="timeOfOption" id="timeOfOption" required>
+					<option value="departure" selected>Depart at</option>
+					<option value="arrival">Arrive by</option>
+				</select>
+			</div>
+			<div id="submit">
+				<input type="submit" value="Submit">
+			</div>
+		</fieldset>
+	</form>
+	<script src="/javascript/flip.js"></script>
+</body>
+</html>

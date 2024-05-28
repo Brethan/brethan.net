@@ -1,0 +1,71 @@
+body, html {
+	padding: 0;
+	margin: 0;
+	height: 100%;
+	width: 100%;
+	max-width: 238px;
+	max-height: 226px;
+	font-size: smaller;
+}
+
+h4 {
+	margin: 5px 0;
+}
+
+.container {
+	margin: 0;
+	padding: 0 auto;
+	border: 2px solid;
+	justify-content: center;
+	height: 213px;
+	width: 219px;
+	background: aliceblue;
+}
+
+.input-location {
+	padding-top: 5px;
+}
+
+input, select {
+	font-size: small;
+}
+
+.invalid {
+	border: red solid 1px;
+}
+
+.invalid::placeholder {
+	color: orangered;
+	font-style: italic;
+}
+
+select#transportMethod {
+	margin-top: 5px;
+}
+
+#time-options input[type=time] {
+	margin-top: 5px;
+}
+
+#time-options select {
+	margin-top: 4px;
+	padding: 1px 0;
+}
+
+#submit {
+	text-align: center;
+}	
+
+#submit input[type=submit] {
+	margin-top: 10px;
+}
+
+.center-cell {
+	text-align: center;
+}
+
+@media screen and (max-width: 240px) {
+	#time-options input[type=time] {
+		width: 65px;
+	}
+}
