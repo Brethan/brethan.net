@@ -1,6 +1,6 @@
 // @ts-check
 const { Axios } = require("axios");
-const { CourseScheduleInformation } = require("../src/types.d");
+const { CourseScheduleInformation } = require("./types");
 /** @type {Axios} */ // @ts-ignore
 const axios = require("axios");
 require("dotenv").config()
@@ -214,16 +214,6 @@ async function getCourseInfo(dept, code, semester = 30, year = 2023) {
 
 	return courseObjs || [dummyObj];
 }
-
-/**
- * @typedef {Object} ScrapeOutput
- * @property {CourseScheduleInformation[]} data
- */
-
-module.exports.CourseScheduleInformation = this.CourseScheduleInformation
-module.exports.ScrapeOutput = this.ScrapeOutput
-module.exports.MeetingTimeInformation = this.MeetingTimeInformation
-module.exports.AlsoRegisterInformation = this.AlsoRegisterInformation
 
 /**
  * @typedef Temp

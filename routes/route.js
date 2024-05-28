@@ -1,6 +1,6 @@
 // @ts-check
 const { Axios } = require("axios");
-const { GeocodedWaypoint, Instruction, WalkingStep } = require("../src/types.d");
+const { GeocodedWaypoint, Instruction, WalkingStep } = require("../src/types");
 
 /** @type {Axios} */
 // @ts-ignore
